@@ -1,3 +1,4 @@
+import CTA from '@/components/landing/CTA'
 import Header from '@/components/landing/Header'
 import Hero from '@/components/landing/Hero'
 import HowItWorks from '@/components/landing/HowItWorks'
@@ -13,6 +14,7 @@ const page = () => {
       <HowItWorks/>
       <WhatToAsk/>
       <PricingSection/>
+      <CTA/>
     </div>
 
   )
