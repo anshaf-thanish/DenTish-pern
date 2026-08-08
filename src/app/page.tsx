@@ -1,9 +1,12 @@
-import { Button } from '@/components/ui/button'
+import Header from '@/components/landing/Header'
 import React from 'react'
 
 const page = () => {
   return (
-    <Button>click me</Button>
+    <div className="min-h-screen bg-background">
+      <Header/>
+    </div>
+
   )
 }
 
