@@ -1,6 +1,5 @@
 import { getUserAppointments } from "@/lib/actions/appointments";
 import { format, isAfter, isSameDay, parseISO } from "date-fns";
-
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { CalendarIcon, ClockIcon, UserIcon } from "lucide-react";
 import NoNextAppointments from "./NoNextAppointments";
