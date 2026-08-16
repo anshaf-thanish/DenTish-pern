@@ -12,28 +12,32 @@ import React from 'react'
 
 
 const page = async () => {
-  
   const user = await currentUser();
 
-  
   await syncUser();
 
-  // redirect auth user to dashboard
-  if (user) redirect("/dashboard");
+  if (user) {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+
+    if (adminEmail && userEmail === adminEmail) {
+      redirect("/admin");
+    }
+
+    redirect("/dashboard");
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <Header/>
-      <Hero/>
-      <HowItWorks/>
-      <WhatToAsk/>
-      <PricingSection/>
-      <CTA/>
-      <Footer/>
+      <Header />
+      <Hero />
+      <HowItWorks />
+      <WhatToAsk />
+      <PricingSection />
+      <CTA />
+      <Footer />
     </div>
+  );
+};
 
-  )
-}
-
-export default page
-
+export default page;
