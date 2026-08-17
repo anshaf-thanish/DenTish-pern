@@ -1,4 +1,5 @@
 "use client";
+
 import { AppointmentConfirmationModal } from "@/components/appointments/AppointmentConfirmationModal";
 import BookingConfirmationStep from "@/components/appointments/BookingConfirmationStep";
 import DoctorSelectionStep from "@/components/appointments/DoctorSelectionStep";
@@ -11,14 +12,12 @@ import { APPOINTMENT_TYPES } from "@/lib/utils";
 import { format } from "date-fns";
 import { useState } from "react";
 
-
 function AppointmentsPage() {
-  
   const [selectedDentistId, setSelectedDentistId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedType, setSelectedType] = useState("");
-  const [currentStep, setCurrentStep] = useState(1); // 1: select dentist, 2: select time, 3: confirm
+  const [currentStep, setCurrentStep] = useState(1);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [bookedAppointment, setBookedAppointment] = useState<any>(null);
 
@@ -27,8 +26,6 @@ function AppointmentsPage() {
 
   const handleSelectDentist = (dentistId: string) => {
     setSelectedDentistId(dentistId);
-
-    // reset the state when dentist changes
     setSelectedDate("");
     setSelectedTime("");
     setSelectedType("");
@@ -36,11 +33,17 @@ function AppointmentsPage() {
 
   const handleBookAppointment = async () => {
     if (!selectedDentistId || !selectedDate || !selectedTime) {
-      toast.error("Please fill in all required fields");
+      toast.add({
+        title: "Error",
+        description: "Please fill in all required fields",
+        type: "error",
+      });
       return;
     }
 
-    const appointmentType = APPOINTMENT_TYPES.find((t) => t.id === selectedType);
+    const appointmentType = APPOINTMENT_TYPES.find(
+      (t) => t.id === selectedType
+    );
 
     bookAppointmentMutation.mutate(
       {
@@ -51,7 +54,6 @@ function AppointmentsPage() {
       },
       {
         onSuccess: async (appointment) => {
-          // store the appointment details to show in the modal
           setBookedAppointment(appointment);
 
           try {
@@ -63,7 +65,10 @@ function AppointmentsPage() {
               body: JSON.stringify({
                 userEmail: appointment.patientEmail,
                 doctorName: appointment.doctorName,
-                appointmentDate: format(new Date(appointment.date), "EEEE, MMMM d, yyyy"),
+                appointmentDate: format(
+                  new Date(appointment.date),
+                  "EEEE, MMMM d, yyyy"
+                ),
                 appointmentTime: appointment.time,
                 appointmentType: appointmentType?.name,
                 duration: appointmentType?.duration,
@@ -71,22 +76,29 @@ function AppointmentsPage() {
               }),
             });
 
-            if (!emailResponse.ok) console.error("Failed to send confirmation email");
+            if (!emailResponse.ok) {
+              console.error("Failed to send confirmation email");
+            }
           } catch (error) {
             console.error("Error sending confirmation email:", error);
           }
 
-          // show the success modal
           setShowConfirmationModal(true);
 
-          // reset form
           setSelectedDentistId(null);
           setSelectedDate("");
           setSelectedTime("");
           setSelectedType("");
           setCurrentStep(1);
         },
-        onError: (error) => toast.error(`Failed to book appointment: ${error.message}`),
+
+        onError: (error) => {
+          toast.add({
+            title: "Booking failed",
+            description: error.message,
+            type: "error",
+          });
+        },
       }
     );
   };
@@ -96,10 +108,13 @@ function AppointmentsPage() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-8 pt-24">
-        {/* header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Book an Appointment</h1>
-          <p className="text-muted-foreground">Find and book with verified dentists in your area</p>
+          <h1 className="text-3xl font-bold mb-2">
+            Book an Appointment
+          </h1>
+          <p className="text-muted-foreground">
+            Find and book with verified dentists in your area
+          </p>
         </div>
 
         <ProgressSteps currentStep={currentStep} />
@@ -146,20 +161,28 @@ function AppointmentsPage() {
           onOpenChange={setShowConfirmationModal}
           appointmentDetails={{
             doctorName: bookedAppointment.doctorName,
-            appointmentDate: format(new Date(bookedAppointment.date), "EEEE, MMMM d, yyyy"),
+            appointmentDate: format(
+              new Date(bookedAppointment.date),
+              "EEEE, MMMM d, yyyy"
+            ),
             appointmentTime: bookedAppointment.time,
             userEmail: bookedAppointment.patientEmail,
           }}
         />
       )}
 
-      {/* SHOW EXISTING APPOINTMENTS FOR THE CURRENT USER */}
       {userAppointments.length > 0 && (
         <div className="mb-8 max-w-7xl mx-auto px-6 py-8">
-          <h2 className="text-xl font-semibold mb-4">Your Upcoming Appointments</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Your Upcoming Appointments
+          </h2>
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {userAppointments.map((appointment) => (
-              <div key={appointment.id} className="bg-card border rounded-lg p-4 shadow-sm">
+              <div
+                key={appointment.id}
+                className="bg-card border rounded-lg p-4 shadow-sm"
+              >
                 <div className="flex items-center gap-3 mb-3">
                   <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <img
@@ -168,16 +191,29 @@ function AppointmentsPage() {
                       className="size-10 rounded-full"
                     />
                   </div>
+
                   <div>
-                    <p className="font-medium text-sm">{appointment.doctorName}</p>
-                    <p className="text-muted-foreground text-xs">{appointment.reason}</p>
+                    <p className="font-medium text-sm">
+                      {appointment.doctorName}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      {appointment.reason}
+                    </p>
                   </div>
                 </div>
+
                 <div className="space-y-1 text-sm">
                   <p className="text-muted-foreground">
-                    📅 {format(new Date(appointment.date), "MMM d, yyyy")}
+                    📅{" "}
+                    {format(
+                      new Date(appointment.date),
+                      "MMM d, yyyy"
+                    )}
                   </p>
-                  <p className="text-muted-foreground">🕐 {appointment.time}</p>
+
+                  <p className="text-muted-foreground">
+                    🕐 {appointment.time}
+                  </p>
                 </div>
               </div>
             ))}
